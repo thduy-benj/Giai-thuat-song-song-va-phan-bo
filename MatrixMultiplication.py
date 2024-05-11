@@ -1,7 +1,7 @@
 import numpy as np
 import time
 import multiprocessing
-def add(matrix1,matrix2):
+def padding(matrix1,matrix2):
     matrix2=matrix2.tolist()
     matrix1=matrix1.tolist()
     size=len(matrix1)
@@ -12,22 +12,14 @@ def add(matrix1,matrix2):
     matrix1.append(mangp)
     matrix2.append(mangp)
     return np.array(matrix1) , np.array(matrix2)
-
-def normal(mat1,mat2):
-    length=len(mat1)
-    kq = np.zeros((length, length))
-    mat2 = np.transpose(mat2)
-    for i in range(length):
-        kq[i] = np.sum(mat1[i] * mat2, axis=1)
-    return np.array(kq)
-
+    
 def strassen(matrix1,matrix2):
     haveadd=False
     length=matrix1.shape[0]
-    if length <= 256:
-        return normal(matrix1,matrix2)
+    if length <= 128:
+        return np.matmul(matrix1, matrix2)
     elif matrix1.shape[0]%2!=0:
-        matrix1,matrix2=add(matrix1,matrix2)
+        matrix1,matrix2=padding(matrix1,matrix2)
         length+=1
         haveadd=True
     n = length // 2
@@ -55,7 +47,7 @@ def parallel_multiply_matrices(matrix1, matrix2):
     matrix1 = np.array(matrix1)
     matrix2 = np.array(matrix2)
     if len(matrix1)%2!=0:
-        matrix1, matrix2 = add(matrix1,matrix2)
+        matrix1, matrix2 = padding(matrix1,matrix2)
         haveadd=True
     n=matrix1.shape[0]//2
     a11, a12, a21, a22 = matrix1[:n, :n], matrix1[:n, n:], matrix1[n:, :n], matrix1[n:, n:]
@@ -83,16 +75,15 @@ def parallel_multiply_matrices(matrix1, matrix2):
 
 if __name__=='__main__':
     n=2000
-    matrix1 = np.random.randint(0, 10, size=(n, n))
-    matrix2 = np.random.randint(0, 10, size=(n, n))
+    matrix1 = np.random.randint(0, 100, size=(n, n))
+    matrix2 = np.random.randint(0, 100, size=(n, n))
 
     start=time.time()
     result = parallel_multiply_matrices(matrix1, matrix2)
     end=time.time()
-    print("thoi gian la = ",end-start)
-    print("Ket qua:")
+    print("Exe time:= ",end-start)
+    print("Result:")
     print(result)
-#++    print("Kiem tra ket qua matrix1 @ matrix2\n", matrix1 @ matrix2)
     
 
 
